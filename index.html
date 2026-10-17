@@ -5,16 +5,11 @@
               <meta http-equiv="content-type" content="text/html; charset=UTF-8">
               <meta id="gameViewport" name="viewport" content="width=device-width initial-scale=1">
               <link href="styles.css" rel="stylesheet" type="text/css">
-			  
-			<script src="sdk.js"></script>
-			<script src="https://yandex.ru/games/sdk/v2"></script>
-			<script>YaGames.init().then(ysdk => { 
-			window.ysdk = ysdk; 
-			window.lang = ysdk.environment.i18n.lang;
-			ysdk.adv.showFullscreenAdv();
-			console.log(window.lang);			
-			} );</script>
-			  
+
+	      <!-- Единый index для всех порталов: портал определяет portal.js и подключает только его SDK -->
+	      <script src="portal.js"></script>
+	      <script src="sdk.js"></script>
+
        </head>
 
        <body>
@@ -33,14 +28,14 @@
                 evt.preventDefault();
                 evt.stopPropagation();
               }
-				  
-			  function contextMenu(evt) {
+
+		  function contextMenu(evt) {
                 evt.preventDefault();
                 evt.stopPropagation();
               }
-			  
+
               document.getElementById('embed-html').addEventListener('mousedown', handleMouseDown, false);
               document.getElementById('embed-html').addEventListener('mouseup', handleMouseUp, false);
-			  document.getElementById('embed-html').addEventListener('contextmenu', contextMenu, false);  
+		  document.getElementById('embed-html').addEventListener('contextmenu', contextMenu, false);
        </script>
 </html>

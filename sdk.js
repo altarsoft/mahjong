@@ -1,206 +1,151 @@
-window.GetLang = function() { 
+// JS-мосты между ядром игры (GWT) и SDK порталов.
+// Все функции безопасны на любом портале: если SDK текущего портала не подключён, вызов — no-op.
+(function () {
 
-	YaGames.init().then(ysdk => {
-    
-		window.ysdk = ysdk;		
-		window.lang = ysdk.environment.i18n.lang;
-		window.tld = ysdk.environment.i18n.tld;
-		
-		console.log("Yandex SDK initialized");
-        console.log(window.lang);
-		//console.log(window.tld);
-				
-	});
+	var portal = window.portal || 'generic';
+	var startupAdShown = false;
 
-};
+	function withYsdk(fn) {
+		if (window.ysdk) { fn(window.ysdk); return; }
+		if (window.YaGames) {
+			YaGames.init().then(function (ysdk) {
+				window.ysdk = ysdk;
+				fn(ysdk);
+			}).catch(console.error);
+		}
+	}
 
-window.GameReady = function() { 
-
-    YaGames.init().then((ysdk) => { ysdk.features.LoadingAPI?.ready() }).catch(console.error);
-
-};
-
-window.GameStart = function() { 
-
-    YaGames.init().then((ysdk) => { ysdk.features.GameplayAPI?.start() });
-
-};
-
-window.GameStop = function() { 
-
-    YaGames.init().then((ysdk) => { ysdk.features.GameplayAPI?.stop() });
-
-};
-
-window.ShowAds = function() { 
-
-    YaGames.init().then(ysdk => ysdk.adv.showFullscreenAdv() );
-
-};
-
-window.ShowAdsRew = function () {
-	
-	ysdk.adv.showRewardedVideo({
-    
-	callbacks: {
-        
-		onOpen: () => { console.log('Video ad open.'); },
-        
-		onRewarded: () => { console.log('Rewarded!');
-		
-			//var coins = @com.ulkaden.bubbleburst::coins;
-			//@com.ulkaden.bubbleburst::coins = coins += 1;
-		  
-        },
-        
-		onClose: () => { console.log('Video ad closed.'); },         
-		onError: (e) => { console.log('Error while open video ad:', e); }
-		
-    }
-	
-	})
-
-	
-};
-
-window.ShowAdsCG = function() {
-    
-	const callbacks = {
-    adFinished: () => console.log("End midgame ad (callback)"),
-    adError: (error, errorData) => console.log("Error midgame ad (callback)", error, errorData),
-    adStarted: () => console.log("Start midgame ad (callback)"),
+	window.GetLang = function () {
+		if (portal === 'yandex') {
+			withYsdk(function (ysdk) {
+				var i18n = ysdk.environment && ysdk.environment.i18n;
+				window.lang = i18n && i18n.lang ? i18n.lang : '';
+				window.tld = i18n ? i18n.tld : '';
+			});
+		} else if (!window.lang) {
+			window.lang = (navigator.language || 'en').slice(0, 2).toLowerCase();
+		}
 	};
 
-	crazysdk.requestAd("midgame", callbacks);
-	
-};
-
-window.ShowAdsGD = function() {
-
-    if (typeof gdsdk !== 'undefined' && gdsdk.showAd !== 'undefined') { gdsdk.showAd(); }
-
-};
-
-window.ShowAdsGM = function() {
-
-    if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') { sdk.showBanner(); }
-
-};
-
-window.ShowAdsGP = function() {
-
-    GamePix.interstitialAd();
-
-};
-
-window.PokiInit = function() {
-
-    PokiSDK.init().then(() => {
-    console.log("Poki SDK successfully initialized");
-   
-		PokiSDK.commercialBreak(() => {
-		// you can pause any background music or other audio here
-		}).then(() => {
-		console.log("Commercial break finished, proceeding to game");
-		// if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
-		// continue your game here
+	window.GameReady = function () {
+		if (portal !== 'yandex') { return; }
+		withYsdk(function (ysdk) {
+			if (ysdk.features && ysdk.features.LoadingAPI) { ysdk.features.LoadingAPI.ready(); }
+			if (!startupAdShown) {
+				startupAdShown = true;
+				setTimeout(function () { ysdk.adv.showFullscreenAdv({ callbacks: {} }); }, 1500);
+			}
 		});
-   
-	}).catch(() => {
-		console.log("Initialized, something went wrong, load you game anyway");
-		// fire your function to continue to game
-	});
+	};
 
-	// fire loading function here
-	PokiSDK.gameLoadingFinished();
-
-};
-
-window.PokiPlayStart = function() { PokiSDK.gameplayStart(); };
-window.PokiPlayStop = function() { PokiSDK.gameplayStop(); };
-
-window.PokiShowAds = function() {
-
-	PokiSDK.commercialBreak(() => {
-	  // you can pause any background music or other audio here
-	}).then(() => {
-	  console.log("Commercial break finished, proceeding to game");
-	  // if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
-	  // continue your game here
-	});
-
-};
-
-window.PokiShowRewarded = function() {
-
-    // pause your game here if it isn't already
-	PokiSDK.rewardedBreak(() => {
-	  // you can pause any background music or other audio here
-	}).then((success) => {
-		if(success) {
-			// video was displayed, give reward
-		} else {
-			// video not displayed, should not give reward
-		}
-		// if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
-		console.log("Rewarded break finished, proceeding to game");
-		// continue your game here
-	});
-
-};
-
-window.PokiInit = function() {
-
-    PokiSDK.init().then(() => {
-    console.log("Poki SDK successfully initialized");
-   
-		PokiSDK.commercialBreak(() => {
-		// you can pause any background music or other audio here
-		}).then(() => {
-		console.log("Commercial break finished, proceeding to game");
-		// if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
-		// continue your game here
+	window.GameStart = function () {
+		if (portal !== 'yandex') { return; }
+		withYsdk(function (ysdk) {
+			if (ysdk.features && ysdk.features.GameplayAPI) { ysdk.features.GameplayAPI.start(); }
 		});
-   
-	}).catch(() => {
-		console.log("Initialized, something went wrong, load you game anyway");
-		// fire your function to continue to game
-	});
+	};
 
-	// fire loading function here
-	PokiSDK.gameLoadingFinished();
+	window.GameStop = function () {
+		if (portal !== 'yandex') { return; }
+		withYsdk(function (ysdk) {
+			if (ysdk.features && ysdk.features.GameplayAPI) { ysdk.features.GameplayAPI.stop(); }
+		});
+	};
 
-};
-
-window.PokiPlayStart = function() { PokiSDK.gameplayStart(); };
-window.PokiPlayStop = function() { PokiSDK.gameplayStop(); };
-
-window.PokiShowAds = function() {
-
-	PokiSDK.commercialBreak(() => {
-	  // you can pause any background music or other audio here
-	}).then(() => {
-	  console.log("Commercial break finished, proceeding to game");
-	  // if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
-	  // continue your game here
-	});
-
-};
-
-window.PokiShowRewarded = function() {
-
-    // pause your game here if it isn't already
-	PokiSDK.rewardedBreak(() => {
-	  // you can pause any background music or other audio here
-	}).then((success) => {
-		if(success) {
-			// video was displayed, give reward
-		} else {
-			// video not displayed, should not give reward
+	window.ShowAds = function () {
+		if (portal === 'yandex') {
+			withYsdk(function (ysdk) {
+				ysdk.adv.showFullscreenAdv({ callbacks: {} });
+			});
+			return;
 		}
-		// if the audio was paused you can resume it here (keep in mind that the function above to pause it might not always get called)
-		console.log("Rewarded break finished, proceeding to game");
-		// continue your game here
-	});
+		if (portal === 'vk' && window.vkBridge) {
+			// Межстраничная реклама рекламной сети VK; между показами VK требует паузу — ошибки глотаем
+			window.vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'interstitial' })
+				.catch(function (e) { console.log('VK interstitial failed:', e); });
+		}
+	};
 
-};
+	window.ShowAdsCG = function () {
+		if (portal !== 'crazy' || !window.CrazyGames || !window.CrazyGames.SDK) { return; }
+		window.CrazyGames.SDK.ad.requestAd('midgame', {
+			adFinished: function () { console.log('End midgame ad'); },
+			adError: function (error, errorData) { console.log('Error midgame ad', error, errorData); },
+			adStarted: function () { console.log('Start midgame ad'); }
+		});
+	};
+
+	window.ShowAdsGD = function () {
+		if (typeof gdsdk !== 'undefined' && gdsdk.showAd) { gdsdk.showAd(); }
+	};
+
+	window.ShowAdsGM = function () {
+		if (typeof sdk !== 'undefined' && sdk.showBanner) { sdk.showBanner(); }
+	};
+
+	window.ShowAdsGP = function () {
+		if (portal !== 'gamepix' || typeof GamePix === 'undefined') { return; }
+		GamePix.interstitialAd();
+	};
+
+	window.PokiInit = function () {
+		if (portal !== 'poki' || typeof PokiSDK === 'undefined') { return; }
+		PokiSDK.init().then(function () {
+			console.log('Poki SDK successfully initialized');
+			PokiSDK.gameLoadingFinished();
+		}).catch(function () {
+			console.log('Poki SDK init failed, load the game anyway');
+			PokiSDK.gameLoadingFinished();
+		});
+	};
+
+	window.PokiPlayStart = function () {
+		if (portal !== 'poki' || typeof PokiSDK === 'undefined') { return; }
+		PokiSDK.gameplayStart();
+	};
+
+	window.PokiPlayStop = function () {
+		if (portal !== 'poki' || typeof PokiSDK === 'undefined') { return; }
+		PokiSDK.gameplayStop();
+	};
+
+	window.PokiShowAds = function () {
+		if (portal !== 'poki' || typeof PokiSDK === 'undefined') { return; }
+		PokiSDK.commercialBreak(function () {
+			// пауза музыки на время рекламы
+		}).then(function () {
+			console.log('Commercial break finished, proceeding to game');
+		});
+	};
+
+	window.PokiShowRewarded = function () {
+		if (portal !== 'poki' || typeof PokiSDK === 'undefined') { return; }
+		PokiSDK.rewardedBreak(function () {
+			// пауза музыки на время рекламы
+		}).then(function (success) {
+			console.log('Rewarded break finished, success: ' + success);
+		});
+	};
+
+	window.ShowAdsRew = function () {
+		if (portal === 'yandex') {
+			withYsdk(function (ysdk) {
+				ysdk.adv.showRewardedVideo({
+					callbacks: {
+						onOpen: function () { console.log('Video ad open.'); },
+						onRewarded: function () { console.log('Rewarded!'); },
+						onClose: function () { console.log('Video ad closed.'); },
+						onError: function (e) { console.log('Error while open video ad:', e); }
+					}
+				});
+			});
+			return;
+		}
+		if (portal === 'vk' && window.vkBridge) {
+			window.vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'reward' })
+				.then(function (r) { console.log('VK reward granted:', r); })
+				.catch(function (e) { console.log('VK reward failed:', e); });
+		}
+	};
+
+})();
