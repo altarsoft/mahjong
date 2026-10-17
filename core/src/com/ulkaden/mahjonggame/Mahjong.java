@@ -435,6 +435,14 @@ public class Mahjong implements ApplicationListener, GestureListener, InputProce
 
 	public void create() {
 
+		// Единая веб-сборка для всех порталов: какой SDK использовать, решает portal.js ($wnd.portal)
+		if (Gdx.app.getType() == Application.ApplicationType.WebGL) {
+			html = true;
+			test = false;
+			platform = "html";
+			poki = getPortal().equals("poki");
+		}
+
 		if (Gdx.app.getType() == Application.ApplicationType.Android) {
 			android = true;
 		}
@@ -3085,6 +3093,8 @@ public class Mahjong implements ApplicationListener, GestureListener, InputProce
 	public static native void GetLang() /*-{ //$wnd.GetLang();
 	@com.ulkaden.mahjonggame.Mahjong::lang = $wnd.lang;
 	}-*/;
+
+	public static native String getPortal() /*-{ return $wnd.portal || "generic"; }-*/;
 
 	public static native void GameReady() /*-{ $wnd.GameReady(); }-*/;
 	public static native void GameStart() /*-{ $wnd.GameStart(); }-*/;
