@@ -2964,7 +2964,7 @@ public class Mahjong implements ApplicationListener, GestureListener, InputProce
 		
 		if(key == Keys.BACK || key == Keys.ESCAPE){
 			
-			if (!status.equals("menu")) { ExitToMenu(); } else { System.exit(0); }
+			if (!status.equals("menu")) { ExitToMenu(); } else { Gdx.app.exit(); }
 		    
 	    }
 		
