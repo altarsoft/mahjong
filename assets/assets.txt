@@ -28,10 +28,10 @@ i:img/tiles_sel.png:img/tiles_sel-e7def11694eb66ce9fa4bf69fc062308.png:314615:im
 i:img/title.png:img/title-1be2bce635fc35ef2e3b81e94bb34992.png:35226:image/png:1
 a:music.ogg:music-2a8b253315f5991c5bfbab0ce99eb4f4.ogg:2111004:audio/ogg:1
 d:par:par:0:application/unknown:1
-b:par/par1:par/par1-2a2f684f061287512fa44b67d6d9531b:1843:application/unknown:1
+b:par/par1:par/par1-c1c6c4ad12ecc061b11805be5a50572b:1969:application/unknown:1
 i:par/par1.png:par/par1-f91d3ebdb9dc74fa879230731bc6781a.png:3401:image/png:1
-b:par/par2:par/par2-da7b2b267fced309ecc7c2549782167a:1842:application/unknown:1
-b:par/par3:par/par3-7f91c1d74c0b04b35db460a6eb9200cf:1843:application/unknown:1
+b:par/par2:par/par2-93ec4a9a5990068554374a84147b7c3f:1968:application/unknown:1
+b:par/par3:par/par3-51b940c9ac10a8ba4ec7c57e3e7d251a:1969:application/unknown:1
 d:snd:snd:0:application/unknown:1
 a:snd/click.wav:snd/click-dae35754c779bacc26adeea45b889808.wav:5820:audio/x-wav:1
 a:snd/menuEnter.wav:snd/menuEnter-df07c8340af0b85217e8f911a8db24df.wav:10158:audio/x-wav:1
